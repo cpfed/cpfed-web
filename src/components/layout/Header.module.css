@@ -1,0 +1,115 @@
+.header {
+    background-color: #fff;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.container {
+    padding: 20px 64px 20px 64px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+}
+
+.logo {
+    font-size: 1.5rem;
+    font-weight: 600;
+    display: flex;
+    gap: 8px;
+    flex: 1;
+}
+
+.logoText {
+    color: #0E8AC8;
+    cursor: pointer;
+}
+
+.desktopNav {
+    display: block;
+    flex: 2; /* Add this - gives the nav more space */
+    text-align: center; /* Add this */
+}
+
+.navList {
+    list-style: none;
+    display: flex;
+    gap: 16px;
+    align-items: center;
+    justify-content: center;
+}
+
+.navItem {
+    padding: 0;
+}
+
+.navLink {
+    text-decoration: none;
+    color: #344054;
+    font-weight: 600;
+}
+
+.container > nav.navList {
+    flex: 1;
+    justify-content: flex-end;
+}
+
+.navLink:hover {
+    color: #0070f3;
+}
+
+.mobileMenuButton {
+    display: none;
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+    color: #444;
+}
+
+.mobileNav {
+    display: none;
+    position: absolute;
+    top: 70px;
+    left: 0;
+    right: 0;
+    background-color: #fff;
+    border-bottom: 1px solid #eaeaea;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
+
+.mobileNavList {
+    list-style: none;
+    padding: 1rem;
+}
+
+.mobileNavItem {
+    padding: 0.75rem 0;
+    border-bottom: 1px solid #eaeaea;
+}
+
+.mobileNavItem:last-child {
+    border-bottom: none;
+}
+
+.mobileNavLink {
+    text-decoration: none;
+    color: #444;
+    font-weight: 500;
+    display: block;
+}
+
+@media (max-width: 768px) {
+    .desktopNav {
+        display: none;
+    }
+
+    .mobileMenuButton {
+        display: block;
+    }
+
+    .mobileNav {
+        display: block;
+    }
+}

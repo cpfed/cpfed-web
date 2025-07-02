@@ -1,0 +1,344 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model auth_group {
+  id                             Int                              @id @default(autoincrement())
+  name                           String                           @unique @db.VarChar(150)
+  auth_group_permissions         auth_group_permissions[]
+  authentication_mainuser_groups authentication_mainuser_groups[]
+
+  @@index([name], map: "auth_group_name_a6ea08ec_like")
+}
+
+/// This model has constraints using non-default deferring rules and requires additional setup for migrations. Visit https://pris.ly/d/constraint-deferring for more info.
+model auth_group_permissions {
+  id              BigInt          @id @default(autoincrement())
+  group_id        Int
+  permission_id   Int
+  auth_permission auth_permission @relation(fields: [permission_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "auth_group_permissio_permission_id_84c5c92e_fk_auth_perm")
+  auth_group      auth_group      @relation(fields: [group_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "auth_group_permissions_group_id_b120cbf9_fk_auth_group_id")
+
+  @@unique([group_id, permission_id], map: "auth_group_permissions_group_id_permission_id_0cd325b0_uniq")
+  @@index([group_id], map: "auth_group_permissions_group_id_b120cbf9")
+  @@index([permission_id], map: "auth_group_permissions_permission_id_84c5c92e")
+}
+
+/// This model has constraints using non-default deferring rules and requires additional setup for migrations. Visit https://pris.ly/d/constraint-deferring for more info.
+model auth_permission {
+  id                                       Int                                        @id @default(autoincrement())
+  name                                     String                                     @db.VarChar(255)
+  content_type_id                          Int
+  codename                                 String                                     @db.VarChar(100)
+  auth_group_permissions                   auth_group_permissions[]
+  django_content_type                      django_content_type                        @relation(fields: [content_type_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "auth_permission_content_type_id_2f476e4b_fk_django_co")
+  authentication_mainuser_user_permissions authentication_mainuser_user_permissions[]
+
+  @@unique([content_type_id, codename], map: "auth_permission_content_type_id_codename_01ab375a_uniq")
+  @@index([content_type_id], map: "auth_permission_content_type_id_2f476e4b")
+}
+
+/// This model has constraints using non-default deferring rules and requires additional setup for migrations. Visit https://pris.ly/d/constraint-deferring for more info.
+model authentication_mainuser {
+  id                                       BigInt                                     @id @default(autoincrement())
+  password                                 String                                     @db.VarChar(128)
+  last_login                               DateTime?                                  @db.Timestamptz(6)
+  is_superuser                             Boolean
+  created_at                               DateTime                                   @db.Timestamptz(6)
+  updated_at                               DateTime                                   @db.Timestamptz(6)
+  handle                                   String                                     @unique @db.VarChar(100)
+  email                                    String                                     @unique @db.VarChar(100)
+  first_name                               String?                                    @db.VarChar(128)
+  last_name                                String?                                    @db.VarChar(128)
+  phone_number                             String?                                    @unique(map: "authentication_mainuser_phone_number_f83b9646_uniq") @db.VarChar(20)
+  gender                                   String?                                    @db.VarChar(20)
+  uin                                      String?                                    @unique(map: "authentication_mainuser_uin_067daa9d_uniq") @db.VarChar(12)
+  t_shirt_size                             String?                                    @db.VarChar(5)
+  place_of_study_of_work                   String?                                    @db.VarChar(128)
+  employment_status                        String?                                    @db.VarChar(128)
+  citizen_of_kz                            Boolean
+  is_admin                                 Boolean
+  is_moderator                             Boolean
+  is_deleted                               Boolean
+  is_active                                Boolean
+  region_id                                BigInt?
+  locations_region                         locations_region?                          @relation(fields: [region_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "authentication_mainu_region_id_47af5010_fk_locations")
+  authentication_mainuser_groups           authentication_mainuser_groups[]
+  authentication_mainuser_user_permissions authentication_mainuser_user_permissions[]
+  authentication_onsitelogin               authentication_onsitelogin[]
+  authentication_passwordrecovery          authentication_passwordrecovery[]
+  contest_usercontest                      contest_usercontest[]
+  django_admin_log                         django_admin_log[]
+  telegram_bot_telegramuser                telegram_bot_telegramuser?
+
+  @@index([email], map: "authentication_mainuser_email_b315ee61_like")
+  @@index([handle], map: "authentication_mainuser_handle_218cd88c_like")
+  @@index([phone_number], map: "authentication_mainuser_phone_number_f83b9646_like")
+  @@index([region_id], map: "authentication_mainuser_region_id_47af5010")
+  @@index([uin], map: "authentication_mainuser_uin_067daa9d_like")
+}
+
+/// This model has constraints using non-default deferring rules and requires additional setup for migrations. Visit https://pris.ly/d/constraint-deferring for more info.
+model authentication_mainuser_groups {
+  id                      BigInt                  @id @default(autoincrement())
+  mainuser_id             BigInt
+  group_id                Int
+  auth_group              auth_group              @relation(fields: [group_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "authentication_mainu_group_id_f5e0a944_fk_auth_grou")
+  authentication_mainuser authentication_mainuser @relation(fields: [mainuser_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "authentication_mainu_mainuser_id_e544e1ad_fk_authentic")
+
+  @@unique([mainuser_id, group_id], map: "authentication_mainuser__mainuser_id_group_id_9f5d97ed_uniq")
+  @@index([group_id], map: "authentication_mainuser_groups_group_id_f5e0a944")
+  @@index([mainuser_id], map: "authentication_mainuser_groups_mainuser_id_e544e1ad")
+}
+
+/// This model has constraints using non-default deferring rules and requires additional setup for migrations. Visit https://pris.ly/d/constraint-deferring for more info.
+model authentication_mainuser_user_permissions {
+  id                      BigInt                  @id @default(autoincrement())
+  mainuser_id             BigInt
+  permission_id           Int
+  authentication_mainuser authentication_mainuser @relation(fields: [mainuser_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "authentication_mainu_mainuser_id_0ba32ded_fk_authentic")
+  auth_permission         auth_permission         @relation(fields: [permission_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "authentication_mainu_permission_id_a11b4b63_fk_auth_perm")
+
+  @@unique([mainuser_id, permission_id], map: "authentication_mainuser__mainuser_id_permission_i_ae691d15_uniq")
+  @@index([mainuser_id], map: "authentication_mainuser_user_permissions_mainuser_id_0ba32ded")
+  @@index([permission_id], map: "authentication_mainuser_user_permissions_permission_id_a11b4b63")
+}
+
+/// This model has constraints using non-default deferring rules and requires additional setup for migrations. Visit https://pris.ly/d/constraint-deferring for more info.
+model authentication_onsitelogin {
+  id                             BigInt                           @id @default(autoincrement())
+  expiration_date                DateTime                         @db.Timestamptz(6)
+  secret_code                    String                           @unique @db.VarChar
+  contest_id                     BigInt?
+  user_id                        BigInt
+  is_one_time                    Boolean
+  contest_contest                contest_contest?                 @relation(fields: [contest_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "authentication_onsit_contest_id_55a3cb32_fk_contest_c")
+  authentication_mainuser        authentication_mainuser          @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "authentication_onsit_user_id_a05c73af_fk_authentic")
+  authentication_onsiteloginlogs authentication_onsiteloginlogs[]
+
+  @@index([contest_id], map: "authentication_onsitelogin_contest_id_55a3cb32")
+  @@index([secret_code], map: "authentication_onsitelogin_secret_code_f903d0e8_like")
+  @@index([user_id], map: "authentication_onsitelogin_user_id_a05c73af")
+}
+
+/// This model has constraints using non-default deferring rules and requires additional setup for migrations. Visit https://pris.ly/d/constraint-deferring for more info.
+model authentication_onsiteloginlogs {
+  id                         BigInt                     @id @default(autoincrement())
+  ip_address                 String                     @db.VarChar(100)
+  created_time               DateTime                   @db.Timestamptz(6)
+  onsite_login_id            BigInt
+  authentication_onsitelogin authentication_onsitelogin @relation(fields: [onsite_login_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "authentication_onsit_onsite_login_id_9cc0b8b4_fk_authentic")
+
+  @@index([onsite_login_id], map: "authentication_onsiteloginlogs_onsite_login_id_9cc0b8b4")
+}
+
+/// This model has constraints using non-default deferring rules and requires additional setup for migrations. Visit https://pris.ly/d/constraint-deferring for more info.
+model authentication_passwordrecovery {
+  created_at              DateTime                 @db.Timestamptz(6)
+  updated_at              DateTime                 @db.Timestamptz(6)
+  id                      String                   @id @db.Uuid
+  is_used                 Boolean
+  expiration_date         DateTime                 @db.Timestamptz(6)
+  user_id                 BigInt?
+  authentication_mainuser authentication_mainuser? @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "authentication_passw_user_id_6196370e_fk_authentic")
+
+  @@index([user_id], map: "authentication_passwordrecovery_user_id_6196370e")
+}
+
+model authentication_useractivation {
+  created_at      DateTime @db.Timestamptz(6)
+  updated_at      DateTime @db.Timestamptz(6)
+  id              String   @id @db.Uuid
+  handle          String   @db.VarChar(100)
+  email           String   @db.VarChar(100)
+  is_used         Boolean
+  expiration_date DateTime @db.Timestamptz(6)
+  password        String   @db.VarChar(128)
+}
+
+model contest_contest {
+  id                               BigInt                            @id @default(autoincrement())
+  name                             String                            @db.VarChar(128)
+  date                             DateTime                          @db.Timestamptz(6)
+  playing_desc                     String
+  name_en                          String?                           @db.VarChar(128)
+  name_kk                          String?                           @db.VarChar(128)
+  playing_desc_en                  String?
+  playing_desc_kk                  String?
+  link                             String?                           @db.VarChar(300)
+  show_on_main_page                Boolean
+  registration_open                Boolean
+  fields                           Json?
+  image_url                        String                            @db.VarChar
+  level_on_main_page               Int
+  trial_contest_link               String?                           @db.VarChar(300)
+  text_above_submit_button         String?
+  text_above_submit_button_en      String?
+  text_above_submit_button_kk      String?
+  name_ru                          String?                           @db.VarChar(128)
+  playing_desc_ru                  String?
+  text_above_submit_button_ru      String?
+  text_after_submit                String?
+  text_after_submit_en             String?
+  text_after_submit_kk             String?
+  text_after_submit_ru             String?
+  esep_org                         Int?
+  text_instead_of_date             String?
+  text_instead_of_date_en          String?
+  text_instead_of_date_kk          String?
+  text_instead_of_date_ru          String?
+  authentication_onsitelogin       authentication_onsitelogin[]
+  contest_contestchangelog         contest_contestchangelog[]
+  contest_usercontest              contest_usercontest[]
+  telegram_bot_contestnotification telegram_bot_contestnotification?
+}
+
+/// This model has constraints using non-default deferring rules and requires additional setup for migrations. Visit https://pris.ly/d/constraint-deferring for more info.
+model contest_contestchangelog {
+  id              BigInt          @id @default(autoincrement())
+  created_at      DateTime        @db.Timestamptz(6)
+  updated_at      DateTime        @db.Timestamptz(6)
+  fields          Json?
+  full_data       Json?
+  contest_id      BigInt
+  contest_contest contest_contest @relation(fields: [contest_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "contest_contestchang_contest_id_11591af1_fk_contest_c")
+
+  @@index([contest_id], map: "contest_contestchangelog_contest_id_11591af1")
+}
+
+/// This model has constraints using non-default deferring rules and requires additional setup for migrations. Visit https://pris.ly/d/constraint-deferring for more info.
+model contest_contestresult {
+  id                  BigInt              @id @default(autoincrement())
+  rank                Int
+  points              Float
+  user_reg_id         BigInt              @unique
+  contest_usercontest contest_usercontest @relation(fields: [user_reg_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "contest_contestresul_user_reg_id_4022ad42_fk_contest_u")
+}
+
+/// This model has constraints using non-default deferring rules and requires additional setup for migrations. Visit https://pris.ly/d/constraint-deferring for more info.
+model contest_usercontest {
+  id                      BigInt                  @id @default(autoincrement())
+  additional_fields       Json
+  contest_id              BigInt
+  user_id                 BigInt
+  contest_contestresult   contest_contestresult?
+  contest_contest         contest_contest         @relation(fields: [contest_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "contest_usercontest_contest_id_1dea36ae_fk_contest_contest_id")
+  authentication_mainuser authentication_mainuser @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "contest_usercontest_user_id_9d43fe78_fk_authentic")
+
+  @@index([contest_id], map: "contest_usercontest_contest_id_1dea36ae")
+  @@index([user_id], map: "contest_usercontest_user_id_9d43fe78")
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+/// This model has constraints using non-default deferring rules and requires additional setup for migrations. Visit https://pris.ly/d/constraint-deferring for more info.
+model django_admin_log {
+  id                      Int                     @id @default(autoincrement())
+  action_time             DateTime                @db.Timestamptz(6)
+  object_id               String?
+  object_repr             String                  @db.VarChar(200)
+  action_flag             Int                     @db.SmallInt
+  change_message          String
+  content_type_id         Int?
+  user_id                 BigInt
+  django_content_type     django_content_type?    @relation(fields: [content_type_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "django_admin_log_content_type_id_c4bce8eb_fk_django_co")
+  authentication_mainuser authentication_mainuser @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "django_admin_log_user_id_c564eba6_fk_authentication_mainuser_id")
+
+  @@index([content_type_id], map: "django_admin_log_content_type_id_c4bce8eb")
+  @@index([user_id], map: "django_admin_log_user_id_c564eba6")
+}
+
+model django_content_type {
+  id               Int                @id @default(autoincrement())
+  app_label        String             @db.VarChar(100)
+  model            String             @db.VarChar(100)
+  auth_permission  auth_permission[]
+  django_admin_log django_admin_log[]
+
+  @@unique([app_label, model], map: "django_content_type_app_label_model_76bd3d3b_uniq")
+}
+
+model django_migrations {
+  id      BigInt   @id @default(autoincrement())
+  app     String   @db.VarChar(255)
+  name    String   @db.VarChar(255)
+  applied DateTime @db.Timestamptz(6)
+}
+
+model django_session {
+  session_key  String   @id @db.VarChar(40)
+  session_data String
+  expire_date  DateTime @db.Timestamptz(6)
+
+  @@index([expire_date], map: "django_session_expire_date_a5c62663")
+  @@index([session_key], map: "django_session_session_key_c0390e0f_like")
+}
+
+model locations_region {
+  id                      BigInt                    @id @default(autoincrement())
+  created_at              DateTime                  @db.Timestamptz(6)
+  updated_at              DateTime                  @db.Timestamptz(6)
+  name                    String                    @unique @db.VarChar(128)
+  authentication_mainuser authentication_mainuser[]
+
+  @@index([name], map: "locations_region_name_a5d2d205_like")
+}
+
+/// This model has constraints using non-default deferring rules and requires additional setup for migrations. Visit https://pris.ly/d/constraint-deferring for more info.
+model telegram_bot_contestnotification {
+  id                  BigInt           @id @default(autoincrement())
+  created_at          DateTime         @db.Timestamptz(6)
+  updated_at          DateTime         @db.Timestamptz(6)
+  scheduled           Boolean
+  day_before_sent     Boolean
+  hour_before_sent    Boolean
+  day_before_task_id  String?          @db.VarChar(255)
+  hour_before_task_id String?          @db.VarChar(255)
+  contest_id          BigInt?          @unique
+  contest_contest     contest_contest? @relation(fields: [contest_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "telegram_bot_contest_contest_id_14938d6e_fk_contest_c")
+}
+
+model telegram_bot_telegrammessage {
+  id         BigInt   @id @default(autoincrement())
+  created_at DateTime @db.Timestamptz(6)
+  updated_at DateTime @db.Timestamptz(6)
+  data       String   @db.VarChar(255)
+  data_ru    String?  @db.VarChar(255)
+  data_en    String?  @db.VarChar(255)
+  data_kk    String?  @db.VarChar(255)
+  code       String   @unique @db.VarChar(20)
+
+  @@index([code], map: "telegram_bot_telegrammessage_code_b65a6fbc_like")
+}
+
+/// This model has constraints using non-default deferring rules and requires additional setup for migrations. Visit https://pris.ly/d/constraint-deferring for more info.
+model telegram_bot_telegramqa {
+  id                        BigInt                     @id @default(autoincrement())
+  created_at                DateTime                   @db.Timestamptz(6)
+  updated_at                DateTime                   @db.Timestamptz(6)
+  status                    Int                        @db.SmallInt
+  text                      String?
+  request_write_mode        Boolean
+  telegram_user_id          BigInt?
+  telegram_bot_telegramuser telegram_bot_telegramuser? @relation(fields: [telegram_user_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "telegram_bot_telegra_telegram_user_id_b4525fef_fk_telegram_")
+
+  @@index([telegram_user_id], map: "telegram_bot_telegramqa_telegram_user_id_b4525fef")
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+/// This model has constraints using non-default deferring rules and requires additional setup for migrations. Visit https://pris.ly/d/constraint-deferring for more info.
+model telegram_bot_telegramuser {
+  id                      BigInt                    @id @default(autoincrement())
+  created_at              DateTime                  @db.Timestamptz(6)
+  updated_at              DateTime                  @db.Timestamptz(6)
+  chat_id                 String?                   @unique(map: "unique_chat_id") @db.VarChar(128)
+  language                String                    @db.VarChar(2)
+  user_group              Int                       @db.SmallInt
+  user_id                 BigInt?                   @unique
+  telegram_bot_telegramqa telegram_bot_telegramqa[]
+  authentication_mainuser authentication_mainuser?  @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "telegram_bot_telegra_user_id_20ea9be5_fk_authentic")
+}
