@@ -2,7 +2,7 @@
 
 import ChoiceButton from "@/components/ui/Button/ChoiceButton";
 import SearchInput from "@/components/ui/Input/SearchInput";
-import {useState} from "react";
+import {useEffect, useState} from "react";
 import {Plus, Trash2} from "lucide-react";
 import { TabButton } from "@/components/ui";
 import EditNewsTable from "@/app/(dashboard)/admin/components/EditNewsTable";
@@ -10,12 +10,22 @@ import EditContestsTable from "@/app/(dashboard)/admin/components/EditContestsTa
 import AddNewsModal from "@/components/modals/AddNewsModal";
 import AddContestModal from "@/components/modals/AddContestModal";
 import {useModalManager} from "@/hooks/useModalManager";
+import {useDashboardHeader} from "@/contexts/DashboardHeaderContext";
 
 export default function Admin() {
     const modalManager = useModalManager();
 
     const [activeOption, setActiveOption] = useState('landing');
     const [activeSubSection, setActiveSubSection] = useState('news');
+    const {setHeaderConfig} = useDashboardHeader();
+
+    useEffect(() => {
+        setHeaderConfig({
+            title: 'Администрирование',
+            showBackButton: false,
+            onBackClick: () => {}
+        });
+    }, [setHeaderConfig]);
 
     const handleOptionClick = (option) => {
         setActiveOption(option);

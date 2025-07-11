@@ -4,15 +4,26 @@ import {Check, XCircle} from "lucide-react";
 import {MoreButtonGray} from "@/components/ui";
 import {useEffect, useState} from "react";
 
-export default function ProblemsList() {
+export default function ProblemsList({ level = 'bronze' }) {
     const [problems, setProblems] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
 
+    const getTypeByLevel = (level) => {
+        switch (level) {
+            case 'bronze':
+                return 'Шартты операторлар';
+            case 'silver':
+                return 'Циклдер (while)';
+            case 'gold':
+                return 'Екі өлшемді массив';
+        }
+    }
+
     useEffect(() => {
         const fetchProblems = async () => {
             try {
-                const res = await fetch('/api/problems');
+                const res = await fetch(`/api/problems?type=${encodeURIComponent(getTypeByLevel(level))}`);
                 if (!res.ok) {
                     throw new Error('Failed to fetch problems');
                 }
@@ -27,7 +38,9 @@ export default function ProblemsList() {
         };
 
         fetchProblems();
-    }, []);
+
+        console.log('fetch');
+    }, [level]);
 
     if (loading) return <div>Loading...</div>;
     if (error) return <div>Error: {error}</div>;

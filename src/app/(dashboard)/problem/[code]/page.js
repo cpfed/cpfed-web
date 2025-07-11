@@ -5,6 +5,9 @@ import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import {Button} from "@/components/ui";
 import {use, useEffect, useState} from "react";
+import {useDashboardHeader} from "@/contexts/DashboardHeaderContext";
+import {useRouter} from "next/navigation";
+import {Copy, Check} from "lucide-react";
 
 const mathJaxConfig = {
     tex: {
@@ -20,6 +23,36 @@ const mathJaxConfig = {
         displayAlign: 'left',
         displayIndent: '0em',
     }
+};
+
+function CopyCodeBlock({ children, ...props }) {
+    const [isCopied, setIsCopied] = useState(false);
+
+    const handleCopy = async () => {
+        try {
+            const textToCopy = typeof children === 'string' ? children : children.toString();
+            await navigator.clipboard.writeText(textToCopy.trim());
+            setIsCopied(true);
+            setTimeout(() => setIsCopied(false), 500);
+        } catch (error) {
+            console.error(error);
+        }
+    };
+
+    return (
+        <pre className="bg-gray-50 rounded-md border border-[#E4E7EC] p-4 overflow-x-auto flex justify-between">
+            <code className="text-xl text-[#475467]" {...props}>
+                {children}
+            </code>
+
+            <button
+                className="h-9 w-9 p-2 hover:cursor-pointer text-[#344054]"
+                onClick={handleCopy}
+            >
+                {isCopied ? <Check size={20}/> : <Copy size={20}/>}
+            </button>
+        </pre>
+    );
 };
 
 function DMOJProblem({ content }) {
@@ -40,11 +73,9 @@ function DMOJProblem({ content }) {
                                         {children}
                                     </code>
                                 ) : (
-                                    <pre className="bg-gray-50 rounded-md border border-[#E4E7EC] p-4 overflow-x-auto">
-                                            <code className="text-xl text-[#475467]" {...props}>
-                                                {children}
-                                            </code>
-                                        </pre>
+                                    <CopyCodeBlock {...props}>
+                                        {children}
+                                    </CopyCodeBlock>
                                 );
                             },
                             h2: ({children}) => (
@@ -114,6 +145,8 @@ function DMOJProblem({ content }) {
 
 export default function ProblemPage({params}) {
     const {code} = use(params);
+    const {setHeaderConfig} = useDashboardHeader();
+    const router = useRouter();
     const [problemDetails, setProblemDetails] = useState({});
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -137,6 +170,14 @@ export default function ProblemPage({params}) {
 
         fetchProblemDetail();
     }, [code]);
+
+    useEffect(() => {
+        setHeaderConfig({
+            title: 'Задачи',
+            showBackButton: true,
+            onBackClick: () => router.back()
+        });
+    }, [setHeaderConfig, router]);
 
     useEffect(() => {
         console.log('Current problem details:', problemDetails);

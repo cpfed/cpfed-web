@@ -1,13 +1,15 @@
 'use client';
 
 import Link from 'next/link';
-import {usePathname} from 'next/navigation';
+import {usePathname, useSearchParams} from 'next/navigation';
 import {
     GraduationCap,
     SquareTerminal,
     FileBadge2,
     ChevronLeft,
     ChevronRight,
+    ChevronDown,
+    ChevronUp,
     Info,
     LogOutIcon,
     UserCog
@@ -17,7 +19,25 @@ import {useState} from "react";
 
 export default function Sidebar() {
     const pathname = usePathname();
+    const searchParams = useSearchParams();
     const [isOpen, setIsOpen] = useState(true);
+    const [isLectureOpen, setIsLectureOpen] = useState(true);
+
+    const currentLectureLevel = searchParams.get('level') || (pathname.startsWith('lecture') ? 'bronze' : null);
+    const lectureItems = [
+        {
+            text: 'Бронзовый',
+            level: 'bronze'
+        },
+        {
+            text: 'Серебряный',
+            level: 'silver'
+        },
+        {
+            text: 'Золотой',
+            level: 'gold'
+        }
+    ];
 
     return (
         <aside className="flex sticky top-0">
@@ -54,15 +74,59 @@ export default function Sidebar() {
                 <nav className="flex-1">
                     <ul className="space-y-1">
                         <li>
-                            <Link href="/lecture"
-                                  className={`flex gap-3 items-center px-3 py-2 h-13 rounded-sm hover:bg-[#F9FAFB] transition-colors duration-300 ${
-                                      pathname.startsWith('/lecture') ? 'bg-[#F9FAFB] text-[#182230]' : 'text-[#344054]'
-                                  }`}>
-                                <GraduationCap size={24} className="text-[#667085] flex-shrink-0"/>
-                                <span className={`transition-all duration-300 ease-in-out ${
-                                    isOpen ? 'opacity-100 max-w-full' : 'opacity-0 max-w-0 overflow-hidden'
-                                }`}>Обучение</span>
-                            </Link>
+                            <button
+                                onClick={() => setIsLectureOpen(!isLectureOpen)}
+                                className={`flex gap-3 items-center px-3 py-2 h-13 w-full rounded-sm hover:bg-[#F9FAFB] hover:cursor-pointer transition-colors duration-300 ${
+                                    pathname.startsWith('/lecture') ? 'bg-[#F9FAFB] text-[#182230]' : 'text-[#344054]'
+                                }`}
+                            >
+                                <GraduationCap size={24} className={`${pathname.startsWith('/lecture') ? "text-[#0E8AC8]": "text-[#667085]"} flex-shrink-0`} />
+
+                                <div className="flex-1 flex justify-between">
+                                    <span className={`transition-all duration-300 ease-in-out ${
+                                        isOpen ? 'opacity-100 max-w-full' : 'opacity-0 max-w-0 overflow-hidden'
+                                    }`}>Обучение
+                                    </span>
+
+                                    <div className={`flex gap-2 transition-all duration-300 ease-in-out ${
+                                        isOpen ? 'px-2 opacity-100' : 'opacity-0 w-0 overflow-hidden'
+                                    }`}>
+                                        {isLectureOpen ? <ChevronUp className="text-[#667085]" /> : <ChevronDown className="text-[#667085]" />}
+                                    </div>
+                                </div>
+                            </button>
+
+                            <ul className={`transition-all duration-300 ease-in-out overflow-hidden ${
+                                isOpen && isLectureOpen ? 'max-h-[200px] mt-2' : 'max-h-0'
+                            }`}>
+                                {lectureItems.map((item, index) => {
+                                    const isActive = currentLectureLevel === item.level;
+
+                                    return (
+                                        <li
+                                            key={item.level}
+
+                                        >
+                                            <Link href={`/lecture?level=${item.level}`}
+                                                  className={`flex pl-12 items-center h-13 rounded-sm transition-all duration-300 ease-in-out hover:cursor-pointer ${
+                                                      isLectureOpen
+                                                          ? 'opacity-100 translate-y-0'
+                                                          : 'opacity-0 translate-y-2'
+                                                  } ${
+                                                      isActive
+                                                          ? 'text-[#182230] bg-[#F9FAFB]'
+                                                          : 'text-[#344054]'
+                                                  } ${
+                                                      isOpen ? 'opacity-100 max-w-full' : 'opacity-0 max-w-0 overflow-hidden'
+                                                  }`}
+                                                  style={{
+                                                      transitionDelay: isLectureOpen ? `${(index + 1) * 50}ms` : '0ms'
+                                                  }}
+                                            >{item.text}</Link>
+                                        </li>
+                                    );
+                                })}
+                            </ul>
                         </li>
 
                         <li>
@@ -70,7 +134,7 @@ export default function Sidebar() {
                                   className={`flex gap-3 items-center px-3 py-2 h-13 rounded-sm hover:bg-[#F9FAFB] transition-colors duration-300 ${
                                       pathname.startsWith('/practice') ? 'bg-[#F9FAFB] text-[#182230]' : 'text-[#344054]'
                                   }`}>
-                                <SquareTerminal size={24} className="text-[#667085] flex-shrink-0"/>
+                                <SquareTerminal size={24} className={`${pathname.startsWith('/practice') ? "text-[#0E8AC8]": "text-[#667085]"} flex-shrink-0`} />
                                 <span className={`transition-all duration-300 ease-in-out ${
                                     isOpen ? 'opacity-100 max-w-full' : 'opacity-0 max-w-0 overflow-hidden'
                                 }`}>Практика</span>
@@ -82,7 +146,7 @@ export default function Sidebar() {
                                   className={`flex gap-3 items-center px-3 py-2 h-13 rounded-sm hover:bg-[#F9FAFB] transition-colors duration-300 ${
                                       pathname.startsWith('/tests') ? 'bg-[#F9FAFB] text-[#182230]' : 'text-[#344054]'
                                   }`}>
-                                <FileBadge2 size={24} className="text-[#667085] flex-shrink-0"/>
+                                <FileBadge2 size={24} className={`${pathname.startsWith('/tests') ? "text-[#0E8AC8]": "text-[#667085]"} flex-shrink-0`} />
                                 <span className={`transition-all duration-300 ease-in-out ${
                                     isOpen ? 'opacity-100 max-w-full' : 'opacity-0 max-w-0 overflow-hidden'
                                 }`}>Тесты</span>
@@ -94,7 +158,7 @@ export default function Sidebar() {
                                   className={`flex gap-3 items-center px-3 py-2 h-13 rounded-sm hover:bg-[#F9FAFB] transition-colors duration-300 ${
                                       pathname.startsWith('/admin') ? 'bg-[#F9FAFB] text-[#182230]' : 'text-[#344054]'
                                   }`}>
-                                <UserCog size={24} className="text-[#667085] flex-shrink-0"/>
+                                <UserCog size={24} className={`${pathname.startsWith('/admin') ? "text-[#0E8AC8]": "text-[#667085]"} flex-shrink-0`} />
                                 <span className={`transition-all duration-300 ease-in-out ${
                                     isOpen ? 'opacity-100 max-w-full' : 'opacity-0 max-w-0 overflow-hidden'
                                 }`}>Админ</span>
